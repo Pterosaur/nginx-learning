@@ -60,7 +60,7 @@ worker线程
                             为新建连添加读事件:src/event/ngx_event.c:ngx_handle_read_event
                                 ngx_add_event
                 
-                    request事件:src/http/ngx_http_request.c     (rev->handler(rev);)
+                    request读事件:src/http/ngx_http_request.c     (rev->handler(rev);)
                         开始接收请求:src/os/unix/ngx_recv.c:ngx_unix_recv       n = c->recv(c, b->last, size);
                         创建一个请求:src/http/ngx_http_request.c:ngx_http_create_request
                         处理请求行:src/http/ngx_http_request.c:ngx_http_process_request_line
@@ -70,6 +70,38 @@ worker线程
                             处理请求头:src/http/nginx_http_request.c:ngx_http_process_request_headers
                                 解析http请求头部:src/http/ngx_http_parse.c:ngx_http_parse_header_line
                                 处理请求:src/http/ngx_http_request.c:ngx_http_process_request
+                                    处理http操作:src/http/ngx_http_core_module.c:ngx_http_handler
+                                        运行HTTP处理模块的各个模块:src/http/ngx_http_core_module.c:ngx_http_core_run_phases
+                                            src/http/ngx_http_core_module.c:ngx_http_core_rewrite_phase
+                                            src/http/ngx_http_core_module.c:ngx_http_core_find_config_phase
+                                            src/http/ngx_http_core_module.c:ngx_http_core_rewrite_phase
+                                            src/http/ngx_http_core_module.c:ngx_http_core_post_rewrite_phase
+                                            src/http/ngx_http_core_module.c:ngx_http_core_generic_phase
+                                                ngx_http_modsecurity.c:ngx_http_modsecurity_handler
+                                                    modsecProcessRequestHeaders
+                                                    modsecProcessRequestBody
+                                            src/http/ngx_http_core_module.c:ngx_http_core_generic_phase
+                                                src/http/modules/ngx_http_limit_req_module.c:ngx_http_limit_req_handler
+                                            src/http/ngx_http_core_module.c:ngx_http_core_generic_phase    
+                                                src/http/modules/ngx_http_limit_conn_module.c:ngx_http_limit_conn_handler
+                                            src/http/ngx_http_core_module.c:ngx_http_core_access_phase
+                                                src/http/modules/ngx_http_access_module.c:ngx_http_access_handler
+                                            src/http/ngx_http_core_module.c:ngx_http_core_access_phase
+                                                src/http/modules/ngx_http_access_module.c:ngx_http_auth_basic_handler
+                                            src/http/ngx_http_core_module.c:ngx_http_core_post_access_phase
+                                            src/http/ngx_http_core_module.c:ngx_http_core_content_phase
+                                        
+                                        src/http/ngx_http_request.c:ngx_http_run_posted_requests 
+
+                    request写事件:src/http/ngx_http_request.c     (rev->handler(rev);)
+                        src\http\ngx_http_upstream.c:ngx_http_upstream_wr_check_broken_connection
+
+
+                    upstream事件:src\http\ngx_http_upstream.c:ngx_http_upstream_handler
+
+
+
+
 
 
                 处理accept后序操作:src/event/ngx_event_posted.c:ngx_event_process_posted
